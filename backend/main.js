@@ -20,8 +20,8 @@ let fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 // TODO(for later): validate moves on server too to check if the move by correct side is made
 //                  for example white should not emit black's moves.
 //
-// TODO: write logic for randomly diciding player color/side.
-// TODO: keep the state of bord same even after reload.
+// TODO: write logic for randomly diciding player color/side. (DONE)
+// TODO: keep the state of bord same even after reload. (DONE)
 
 io.on('connect', (socket) => {
   console.log(`Socket connected ${socket.id}`);
