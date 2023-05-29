@@ -38,6 +38,9 @@ io.on('connect', (socket) => {
     connections[socId].emit('side', sides[socId]);
   }
 
+  // Here s-move and r-move are move signals from perspective of client
+  // s-move := move sent from client
+  // r-move := move recieved by client
   socket.on('s-move', (move) => {
     const conn_keys = Object.keys(connections);
     const socketIndex = conn_keys.indexOf(socket.id);
