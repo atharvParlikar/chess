@@ -1,0 +1,28 @@
+.App {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  flex-direction: column;
+}
+
+.board {
+  border-radius: 50px;
+  background: #e0e0e0;
+  box-shadow: 20px 20px 60px #818181, -20px -20px 60px #ffffff;
+  margin-bottom: 20px;
+}
+
+button {
+  padding: 5px 10px;
+  color: white;
+  background-color: rgb(29, 29, 29);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+p {
+  font-family: monospace;
+  font-size: 14px;
+}
