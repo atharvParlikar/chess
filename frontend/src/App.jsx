@@ -57,7 +57,9 @@ function App() {
       <div className="board">
         <Chessboard orientation={side} width={400} position={fen} onDrop={handleDrop} />
       </div>
-      <p>Fen: {fen}</p>
+      <p>{
+        side[0] === fen.split(' ')[1] ? "Your move" : "Opponent's move"
+      }</p>
     </div>
   );
 }
