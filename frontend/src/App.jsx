@@ -38,7 +38,7 @@ function App() {
   const handleDrop = (square) => {
     if (square.sourceSquare === square.targetSquare)
       return;
-
+  
     try {
       // make sure player is moving their own piece [moved piece is same color as player color]
       if (chess.get(square.sourceSquare).color !== side[0])
