@@ -3,6 +3,7 @@ import Chessboard from 'chessboardjsx';
 import {useState, useEffect} from 'react';
 import {Chess} from "chess.js"
 import { socket } from './socket';
+import Notification from './components/Notification';
 
 const chess = new Chess();
 
@@ -11,6 +12,8 @@ function App() {
   const [moves, setMoves] = useState([]);
   const [side, setSide] = useState('white');
   const [fen, setFen] = useState("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+  const [showNotification, setShowNotification] = useState(false);
+  const [notificationMsg, setNotificationMsg] = useState('');
 
   useEffect(() => {
     const onMove = (move) => {
@@ -20,8 +23,16 @@ function App() {
       setMoves([...moves, move]);
     };
 
+    const handleDisconnect = () => {
+      setIsConnected(false);
+      setShowNotification(true);
+      setNotificationMsg('Disconnected from server');
+      
+      setTimeout(() => setShowNotification(false), 3000);
+    }
+
     socket.on('connect', () => setIsConnected(true));
-    socket.on('disconnect', () => setIsConnected(false));
+    socket.on('disconnect', handleDisconnect);
     socket.on('r-move', onMove);
     socket.on('side', (side_) => setSide(side_));
     socket.on('fen', (fen) => setFen(fen));
@@ -50,10 +61,13 @@ function App() {
     } catch {
       return;
     }
-};
+  };
 
   return (
     <div className="App">
+      {
+        showNotification && <Notification message={notificationMsg}/>
+      }
       <div className="board">
         <Chessboard orientation={side} width={400} position={fen} onDrop={handleDrop} />
       </div>

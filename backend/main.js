@@ -19,13 +19,17 @@ const sides = {}
 let fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
 io.on('connect', (socket) => {
+  if(Object.keys(connections) > 1) {
+    return;
+  }
   console.log(`Socket connected ${socket.id}`);
   connections[socket.id] = socket;
 
   socket.emit('fen', fen);
 
-  if (Object.keys(sides) === 0)
+  if (Object.keys(sides).length === 0) 
     sides[socket.id] = Math.random() < 0.5 ? 'white' : 'black';
+  
   else
     sides[socket.id] = sides[Object.keys(sides)[0]] === 'white' ? 'black' : 'white';
 
