@@ -2,6 +2,7 @@ import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io'
 import cors from 'cors';
+import { isValid } from './utils.js';
 
 const app = express();
 const httpServer = createServer(app);
@@ -16,6 +17,7 @@ app.use(cors());
 const connections = {}
 const sides = {}
 let fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+
 
 // TODO(for later): validate moves on server too to check if the move by correct side is made
 //                  for example white should not emit black's moves.
@@ -45,7 +47,10 @@ io.on('connect', (socket) => {
     const conn_keys = Object.keys(connections);
     const socketIndex = conn_keys.indexOf(socket.id);
     const opponentSocketId = conn_keys.slice(socketIndex - 1)[0];
-    connections[opponentSocketId].emit('r-move', move);
+    const isValidMove = isValid(move.from, fen, sides[socket.id][0]);
+    if (isValidMove) {
+      connections[opponentSocketId].emit('r-move', move);
+    }
   });
   
   socket.on('fen', (fen_) => fen = fen_);
