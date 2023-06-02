@@ -19,53 +19,59 @@ const io = new Server(httpServer, {
 app.use(cors());
 
 const connections = {}
-const sides = {}
-let fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+const liveGames = {}
 
 io.on('connect', (socket) => {
-  if(Object.keys(connections) > 1) {
-    return;
-  }
-
   console.log(`Socket connected ${socket.id}`);
-  connections[socket.id] = socket;
-
-  socket.emit('fen', fen);
-
-  if (Object.keys(sides).length === 0) 
-    sides[socket.id] = Math.random() < 0.5 ? 'white' : 'black';
-
-  else
-    sides[socket.id] = sides[Object.keys(sides)[0]] === 'white' ? 'black' : 'white';
-
-  for (const socId of Object.keys(sides)) {
-    connections[socId].emit('side', sides[socId]);
-  }
 
   // Here s-move and r-move are move signals from perspective of client
   // s-move := move sent from client
   // r-move := move recieved by client
-  socket.on('s-move', (move) => {
-    const conn_keys = Object.keys(connections);
-    const socketIndex = conn_keys.indexOf(socket.id);
-    const opponentSocketId = conn_keys.slice(socketIndex - 1)[0];
-    const isValidMove = isValid(move.from, fen, sides[socket.id][0]);
+  socket.on('s-move', ({ move, game_id }) => {
+    const turn = liveGames[game_id].fen.split(' ')[1]
+    const isValidMove = isValid(move.from, liveGames[game_id].fen, turn);
+    console.log(isValidMove)
     if (isValidMove) {
-      connections[opponentSocketId].emit('r-move', move);
+      const game_id = connections[socket.id];
+      const turn = liveGames[game_id].fen.split(' ')[1];
+      liveGames[game_id].sides[turn === 'w' ? 'b' : 'w'].emit('r-move', move);
     }
   });
-  
-  socket.on('fen', (fen_) => fen = fen_);
+
+  socket.on('fen', ({ fen_, game_id }) => {
+    liveGames[game_id].fen = fen_;
+  });
+
+  socket.on('game_id', (game_id) => {
+    if (!liveGames[game_id]) {
+      const socketId = socket.id;
+      liveGames[game_id] = {
+        players: [socketId],
+        sides: {},
+        fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      }
+      const playerColor = Math.random() > 0.5 ? 'w' : 'b';
+      liveGames[game_id].sides[playerColor] = socket;
+      socket.emit('side', playerColor);
+    } else {
+      if (liveGames[game_id].players.length > 2)
+        socket.emit('error');
+      else {
+        const playerColor = Object.keys(liveGames[game_id].sides)[0] === "w" ? "b" : "w";
+        liveGames[game_id].players.push(socket.id);
+        liveGames[game_id].sides[playerColor] = socket;
+        socket.emit('side', playerColor);
+      }
+    }
+    connections[socket.id] = game_id;
+    console.log(liveGames)
+  });
 
   socket.on('disconnect', () => {
     console.log(`Socket disconnected ${socket.id}`);
-    delete connections[socket.id];
-    delete sides[socket.id];
   });
 });
-
 
 httpServer.listen(3000, () => {
   console.log('Server is live on port: 3000');
 });
-

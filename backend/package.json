@@ -5,7 +5,7 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "dev": "nodemon main_.js"
+    "dev": "nodemon main.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
