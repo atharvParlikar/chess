@@ -13,15 +13,6 @@
   margin-bottom: 20px;
 }
 
-button {
-  padding: 5px 10px;
-  color: white;
-  background-color: rgb(29, 29, 29);
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
 p {
   font-family: monospace;
   font-size: 14px;

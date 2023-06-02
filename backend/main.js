@@ -4,6 +4,10 @@ import { Server } from 'socket.io'
 import cors from 'cors';
 import { isValid } from './utils.js';
 
+// TODO: Replace socket_id with something that does not change after every reconnection
+//       a long term solution would be to use player-id but for anonymous chess we
+//       might use player's IP address as that is constant.
+
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
@@ -22,6 +26,7 @@ io.on('connect', (socket) => {
   if(Object.keys(connections) > 1) {
     return;
   }
+
   console.log(`Socket connected ${socket.id}`);
   connections[socket.id] = socket;
 
@@ -29,7 +34,7 @@ io.on('connect', (socket) => {
 
   if (Object.keys(sides).length === 0) 
     sides[socket.id] = Math.random() < 0.5 ? 'white' : 'black';
-  
+
   else
     sides[socket.id] = sides[Object.keys(sides)[0]] === 'white' ? 'black' : 'white';
 
@@ -63,3 +68,4 @@ io.on('connect', (socket) => {
 httpServer.listen(3000, () => {
   console.log('Server is live on port: 3000');
 });
+
