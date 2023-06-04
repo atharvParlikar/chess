@@ -4,12 +4,12 @@ import { Chess } from "chess.js"
 import { socket } from '../socket';
 import Notification from './Notification';
 import { useParams } from 'react-router-dom';
+import History from './History';
 
 const chess = new Chess();
 
 const Game = () => {
   const [isConnected, setIsConnected] = useState(socket.connected); // Dont know why i need this for but i'll keep this here just in case
-  const [moves, setMoves] = useState([]);
   const [side, setSide] = useState('white');
   const [fen, setFen] = useState("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
   const [notifications, setNotifications] = useState([]);
@@ -17,12 +17,10 @@ const Game = () => {
 
   useEffect(() => {
     const onMove = (move) => {
-      console.log(`recieved move ${move}`);
       chess.move(move);
       setFen(chess.fen());
       socket.emit('fen', { fen_: chess.fen(), game_id });
       handleGameOver();
-      setMoves([...moves, move]);
     };
 
     const handleConnect = () => {
@@ -55,7 +53,7 @@ const Game = () => {
       socket.off('fen');
     };
   }, []);
-
+  
   const addNotification = (message, time = 5) => {
     setNotifications([...notifications, message]);
     setTimeout(() => {
@@ -97,16 +95,19 @@ const Game = () => {
       addNotification("illegal move", 2)
     }
   };
+  
+  console.log(chess.history().length);
 
   return (
     <div className="App">
       {notifications.length > 0 && <Notification message={notifications[notifications.length - 1]} />}
       <div className="board">
-        <Chessboard orientation={side} width={400} position={fen} onDrop={handleDrop} />
+        <Chessboard orientation={side} width={700} position={fen} onDrop={handleDrop} />
       </div>
       <p>{
         side[0] === fen.split(' ')[1] ? "Your move" : "Opponent's move"
       }</p>
+      {chess.history().length > 0 ? <History history={chess.history({verbose: true})}/> : <p>empty history</p>}
     </div>
   );
 }
